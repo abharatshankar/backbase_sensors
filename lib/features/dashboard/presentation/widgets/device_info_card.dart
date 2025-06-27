@@ -8,31 +8,29 @@ class DeviceInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Device Information',
-              style: Theme.of(context).textTheme.titleLarge,
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Device Information',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 16),
+          _buildInfoRow(Icons.phone_android, 'Device Name', deviceInfo.deviceName),
+          _buildInfoRow(Icons.android, 'OS Version', deviceInfo.osVersion),
+          _buildInfoRow(
+            Icons.battery_std,
+            'Battery Level',
+            '${deviceInfo.batteryLevel}%',
+            extra: LinearProgressIndicator(
+              value: deviceInfo.batteryLevel / 100,
+              backgroundColor: Colors.grey.shade300,
+              color: _getBatteryColor(deviceInfo.batteryLevel),
             ),
-            const SizedBox(height: 16),
-            _buildInfoRow(Icons.phone_android, 'Device Name', deviceInfo.deviceName),
-            _buildInfoRow(Icons.android, 'OS Version', deviceInfo.osVersion),
-            _buildInfoRow(
-              Icons.battery_std,
-              'Battery Level',
-              '${deviceInfo.batteryLevel}%',
-              extra: LinearProgressIndicator(
-                value: deviceInfo.batteryLevel / 100,
-                backgroundColor: Colors.grey.shade300,
-                color: _getBatteryColor(deviceInfo.batteryLevel),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
