@@ -1,8 +1,10 @@
 import 'package:flutter/services.dart';
+import 'interfaces/device_info_service_interface.dart';
 
-class DeviceInfoService {
+class DeviceInfoService implements DeviceInfoServiceInterface {
   static const platform = MethodChannel('com.example.device_info/device');
 
+  @override
   Future<String> getDeviceName() async {
     try {
       return await platform.invokeMethod('getDeviceName');
@@ -11,6 +13,7 @@ class DeviceInfoService {
     }
   }
 
+  @override
   Future<String> getOSVersion() async {
     try {
       return await platform.invokeMethod('getOSVersion');
@@ -19,6 +22,7 @@ class DeviceInfoService {
     }
   }
 
+  @override
   Future<int> getBatteryLevel() async {
     try {
       return await platform.invokeMethod('getBatteryLevel');

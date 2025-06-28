@@ -1,20 +1,20 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
-import 'package:backbase_sesnosr_app/core/platform/device_info_service.dart';
+import 'package:backbase_sesnosr_app/core/platform/interfaces/device_info_service_interface.dart';
 import 'package:backbase_sesnosr_app/features/dashboard/presentation/dashboard_controller.dart';
 import 'package:backbase_sesnosr_app/features/dashboard/domain/models/device_info.dart';
 
 import 'dashboard_controller_test.mocks.dart';
 
-@GenerateMocks([DeviceInfoService])
+@GenerateMocks([DeviceInfoServiceInterface])
 void main() {
   group('DashboardController', () {
-    late MockDeviceInfoService mockDeviceInfoService;
+    late MockDeviceInfoServiceInterface mockDeviceInfoService;
     late DashboardController controller;
 
     setUp(() {
-      mockDeviceInfoService = MockDeviceInfoService();
+      mockDeviceInfoService = MockDeviceInfoServiceInterface();
       controller = DashboardController(mockDeviceInfoService);
     });
 

@@ -2,20 +2,20 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
-import 'package:backbase_sesnosr_app/core/platform/sensor_service.dart';
+import 'package:backbase_sesnosr_app/core/platform/interfaces/sensor_service_interface.dart';
 import 'package:backbase_sesnosr_app/features/sensor/presentation/sensor_controller.dart';
 
 import 'sensor_controller_test.mocks.dart';
 
-@GenerateMocks([SensorService])
+@GenerateMocks([SensorServiceInterface])
 void main() {
   group('SensorController', () {
-    late MockSensorService mockSensorService;
+    late MockSensorServiceInterface mockSensorService;
     late SensorController controller;
     late StreamController<Map<String, double>> gyroscopeStreamController;
 
     setUp(() {
-      mockSensorService = MockSensorService();
+      mockSensorService = MockSensorServiceInterface();
       controller = SensorController(mockSensorService);
       gyroscopeStreamController = StreamController<Map<String, double>>();
     });

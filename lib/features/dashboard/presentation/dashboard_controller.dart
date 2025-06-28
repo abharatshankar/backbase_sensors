@@ -1,9 +1,9 @@
-import 'package:backbase_sesnosr_app/core/platform/device_info_service.dart';
+import 'package:backbase_sesnosr_app/core/platform/interfaces/device_info_service_interface.dart';
 import 'package:backbase_sesnosr_app/features/dashboard/domain/models/device_info.dart';
 import 'package:flutter/material.dart';
 
 class DashboardController with ChangeNotifier {
-  final DeviceInfoService _deviceInfoService;
+  final DeviceInfoServiceInterface _deviceInfoService;
   DeviceInfo? _deviceInfo;
   bool _isLoading = false;
   String? _error;

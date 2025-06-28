@@ -1,10 +1,10 @@
 import 'dart:async';
-import 'package:backbase_sesnosr_app/core/platform/sensor_service.dart';
+import 'package:backbase_sesnosr_app/core/platform/interfaces/sensor_service_interface.dart';
 import 'package:flutter/foundation.dart';
 import '../domain/models/sensor_data.dart';
 
 class SensorController with ChangeNotifier {
-  final SensorService _sensorService;
+  final SensorServiceInterface _sensorService;
 
   bool _isFlashlightOn = false;
   SensorData? _gyroscopeData;
