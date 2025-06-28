@@ -1,6 +1,5 @@
 import 'package:backbase_sesnosr_app/features/dashboard/domain/models/device_info.dart';
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
 
 class DeviceInfoCard extends StatelessWidget {
   final DeviceInfo deviceInfo;
@@ -25,10 +24,14 @@ class DeviceInfoCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              BatteryLottieAnimation(
+              CustomBatteryWidget(
                 batteryPercentage: deviceInfo.batteryLevel,
               ),
-              Text( ' ${deviceInfo.batteryLevel}%', style: TextStyle(fontSize: 36)),
+              const SizedBox(width: 16),
+              Text(
+                '${deviceInfo.batteryLevel}%',
+                style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
+              ),
             ],
           ),
         ],
@@ -62,77 +65,127 @@ class DeviceInfoCard extends StatelessWidget {
       ),
     );
   }
-
 }
 
+class CustomBatteryWidget extends StatefulWidget {
+  final int batteryPercentage;
 
-
-class BatteryLottieAnimation extends StatefulWidget {
-  final int batteryPercentage; // 0 to 100
-
-  const BatteryLottieAnimation({super.key, required this.batteryPercentage});
+  const CustomBatteryWidget({super.key, required this.batteryPercentage});
 
   @override
-  State<BatteryLottieAnimation> createState() => _BatteryLottieAnimationState();
+  State<CustomBatteryWidget> createState() => _CustomBatteryWidgetState();
 }
 
-class _BatteryLottieAnimationState extends State<BatteryLottieAnimation>
+class _CustomBatteryWidgetState extends State<CustomBatteryWidget>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  bool _showAnimation = false;
+  late AnimationController _animationController;
+  late Animation<double> _fillAnimation;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this);
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 1000),
+      vsync: this,
+    );
     
-    if (mounted) {
-      setState(() {
-        _showAnimation = true;
-      });
-    }
+    // Initialize the animation with the current battery percentage
+    final initialValue = widget.batteryPercentage / 100.0;
+    _fillAnimation = Tween<double>(
+      begin: 0.0,
+      end: initialValue,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    ));
+    
+    _animationController.forward();
   }
 
   @override
-  void didUpdateWidget(covariant BatteryLottieAnimation oldWidget) {
+  void didUpdateWidget(CustomBatteryWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-
     if (oldWidget.batteryPercentage != widget.batteryPercentage) {
-      _setProgress();
+      _updateAnimation();
     }
   }
 
-  void _setProgress() {
-    if (!_showAnimation) return;
-    
-    final progress = (widget.batteryPercentage.clamp(0, 100)) / 100;
-    _controller.animateTo(progress, duration: const Duration(milliseconds: 800));
+  void _updateAnimation() {
+    final targetValue = widget.batteryPercentage / 100.0;
+    _fillAnimation = Tween<double>(
+      begin: _fillAnimation.value,
+      end: targetValue,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    ));
+    _animationController.forward(from: 0.0);
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _animationController.dispose();
     super.dispose();
+  }
+
+  Color _getBatteryColor(double percentage) {
+    if (percentage <= 0.2) return Colors.red;
+    if (percentage <= 0.4) return Colors.orange;
+    if (percentage <= 0.6) return Colors.yellow;
+    if (percentage <= 0.8) return Colors.lightGreen;
+    return Colors.green;
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!_showAnimation) {
-      return const SizedBox(height: 120);
-    }
-
-    return SizedBox(
-      height: 120,
-      child: Lottie.asset(
-        'assets/battery_animation.json',
-        controller: _controller,
-        onLoaded: (composition) {
-          _controller.duration = composition.duration;
-          _setProgress(); // Set initial progress after composition is loaded
-        },
-        fit: BoxFit.contain,
-        animate: false, // Disable auto-animation
-      ),
+    return AnimatedBuilder(
+      animation: _fillAnimation,
+      builder: (context, child) {
+        final fillPercentage = _fillAnimation.value;
+        final batteryColor = _getBatteryColor(fillPercentage);
+        
+        return Container(
+          width: 80,
+          height: 120,
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade600, width: 3),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Stack(
+            children: [
+              // Battery fill
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  height: 120 * fillPercentage,
+                  decoration: BoxDecoration(
+                    color: batteryColor,
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(5),
+                      bottomRight: Radius.circular(5),
+                    ),
+                  ),
+                ),
+              ),
+              // Battery terminal
+              Positioned(
+                top: -8,
+                left: 50,
+                child: Container(
+                  width: 20,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade600,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
