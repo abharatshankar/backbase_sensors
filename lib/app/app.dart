@@ -27,6 +27,7 @@ class App extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
+        title: 'Device Info & Sensors',
         debugShowCheckedModeBanner: false,
         theme: ThemeData.light(),
         darkTheme: ThemeData.dark(),

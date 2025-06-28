@@ -1,8 +1,9 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:backbase_sesnosr_app/features/sensor/presentation/sensor_controller.dart';
-import 'package:backbase_sesnosr_app/features/sensor/presentation/widgets/toogle_button.dart';
+import 'package:backbase_sesnosr_app/features/sensor/presentation/widgets/toggle_button.dart';
 
 class SensorScreen extends StatefulWidget {
   const SensorScreen({super.key});
@@ -11,10 +12,47 @@ class SensorScreen extends StatefulWidget {
   State<SensorScreen> createState() => _SensorScreenState();
 }
 
-class _SensorScreenState extends State<SensorScreen> {
+class _SensorScreenState extends State<SensorScreen> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late SensorController sensorController;
+
+  @override
+  void initState() {
+    super.initState();
+
+    sensorController = Provider.of<SensorController>(context, listen: false);
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    );
+
+    if (sensorController.isFlashlightOn) {
+      _controller.forward();
+    }
+
+    sensorController.addListener(_flashlightListener);
+  }
+
+  void _flashlightListener() {
+    if (sensorController.isFlashlightOn) {
+      _controller.forward();
+    } else {
+      _controller.reverse();
+    }
+  }
+
+  @override
+  void dispose() {
+    sensorController.removeListener(_flashlightListener);
+    _controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -46,24 +84,36 @@ class _SensorScreenState extends State<SensorScreen> {
                   physics: const BouncingScrollPhysics(),
                   children: [
                     GlassCard(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      child: Column(
                         children: [
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Icon(Icons.lightbulb, color: Colors.amber, size: 32),
-                              const SizedBox(width: 12),
-                              Text(
-                                'Flashlight',
-                                style: theme.textTheme.titleMedium?.copyWith(color: Colors.white),
+                              Row(
+                                children: [
+                                  const Icon(Icons.lightbulb, color: Colors.amber, size: 32),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    'Flashlight',
+                                    style: theme.textTheme.titleMedium?.copyWith(color: Colors.white),
+                                  ),
+                                ],
+                              ),
+                              ToggleButton(
+                                value: controller.isFlashlightOn,
+                                onChanged: (_) => controller.toggleFlashlight(),
+                                activeIcon: Icons.flash_on,
+                                inactiveIcon: Icons.flash_off,
                               ),
                             ],
                           ),
-                          ToggleButton(
-                            value: controller.isFlashlightOn,
-                            onChanged: (_) => controller.toggleFlashlight(),
-                            activeIcon: Icons.flash_on,
-                            inactiveIcon: Icons.flash_off,
+                          SizedBox(
+                            height: 120,
+                            child: Lottie.asset(
+                              controller.isFlashlightOn ? 'assets/blub_on.json' : 'assets/blub_off.json',
+                              controller: _controller,
+                              fit: BoxFit.contain,
+                            ),
                           ),
                         ],
                       ),
@@ -111,7 +161,9 @@ class _SensorScreenState extends State<SensorScreen> {
                                 ),
                                 padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 14),
                                 elevation: 6,
-                                shadowColor: controller.isGyroscopeActive ? Colors.redAccent.withOpacity(0.6) : Colors.lightBlueAccent.withOpacity(0.6),
+                                shadowColor: controller.isGyroscopeActive
+                                    ? Colors.redAccent.withOpacity(0.6)
+                                    : Colors.lightBlueAccent.withOpacity(0.6),
                               ),
                               child: Text(
                                 controller.isGyroscopeActive ? 'Stop Gyroscope' : 'Start Gyroscope',
